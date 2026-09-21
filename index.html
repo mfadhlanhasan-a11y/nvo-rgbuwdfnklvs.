@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,800;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#e9e3d6;        /* teks: putih cahaya bulan yang hangat */
+    --soft:#b9ad96;       /* teks sekunder */
+    --gold:255,200,140;   /* cahaya utama */
+    --rose:255,130,160;   /* cahaya sekunder */
+    --moon:170,190,255;   /* cahaya kebiruan tipis */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:#000}
+  body{
+    background:#000;
+    color:var(--ink);
+    font-family:'Newsreader',Georgia,'Times New Roman',serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Latar bercahaya ---------- */
+  .backdrop{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .orb{position:absolute;border-radius:50%;will-change:transform}
+  .orb.a{
+    width:70vmax;height:70vmax;left:-28vmax;top:-22vmax;
+    background:radial-gradient(circle,rgba(var(--gold),.17),transparent 62%);
+    animation:driftA 28s ease-in-out infinite alternate;
+  }
+  .orb.b{
+    width:62vmax;height:62vmax;right:-30vmax;top:34vh;
+    background:radial-gradient(circle,rgba(var(--rose),.12),transparent 62%);
+    animation:driftB 34s ease-in-out infinite alternate;
+  }
+  .orb.c{
+    width:58vmax;height:58vmax;left:-24vmax;bottom:-28vmax;
+    background:radial-gradient(circle,rgba(var(--moon),.09),transparent 62%);
+    animation:driftC 40s ease-in-out infinite alternate;
+  }
+  @keyframes driftA{to{transform:translate(12vmax,8vmax)}}
+  @keyframes driftB{to{transform:translate(-10vmax,-9vmax)}}
+  @keyframes driftC{to{transform:translate(10vmax,-6vmax)}}
+
+  .star{
+    position:absolute;border-radius:50%;background:#fff;
+    animation:twinkle var(--d,6s) ease-in-out var(--l,0s) infinite;
+  }
+  @keyframes twinkle{0%,100%{opacity:.08}50%{opacity:.5}}
+
+  main{position:relative;z-index:1}
+
+  /* ---------- Puisi ---------- */
+  .poem{
+    position:relative;
+    max-width:31rem;
+    margin:0 auto;
+    padding:18vh 1.6rem 12vh;
+  }
+  .moon{
+    position:absolute;left:50%;top:0;
+    width:min(120vw,720px);aspect-ratio:1;
+    transform:translate(-50%,-22%);
+    background:radial-gradient(circle,
+      rgba(255,244,222,.24) 0,
+      rgba(var(--gold),.09) 34%,
+      transparent 68%);
+    pointer-events:none;
+  }
+  h1{
+    position:relative;
+    font-weight:300;
+    font-size:clamp(4rem,17vw,7rem);
+    line-height:1;
+    letter-spacing:.02em;
+    margin-bottom:4.5rem;
+    text-shadow:0 0 42px rgba(var(--gold),.45);
+    animation:emerge 3s cubic-bezier(.2,.6,.2,1) both;
+  }
+  @keyframes emerge{
+    from{opacity:0;filter:blur(10px);letter-spacing:.14em}
+    to{opacity:1;filter:blur(0);letter-spacing:.02em}
+  }
+  .stanza{margin-bottom:2.6rem}
+  .stanza p{
+    font-size:clamp(1.18rem,4.4vw,1.4rem);
+    line-height:1.8;
+    text-wrap:pretty;
+  }
+  .stanza p + p{margin-top:.55rem}
+  .stanza.close{margin-top:4.5rem;margin-bottom:0}
+  .stanza.close p{font-style:italic;color:var(--soft)}
+
+  /* muncul perlahan saat sampai di layar */
+  .fade{opacity:0;transition:opacity 1.8s ease}
+  .fade.in{opacity:1}
+
+  /* ---------- Foto tersebar ---------- */
+  .scatter{
+    max-width:760px;margin:0 auto;
+    padding:6vh 1.25rem 14vh;
+    display:flex;flex-direction:column;align-items:center;
+    --spread:22%;
+  }
+  .photo{
+    --k:0;--r:0deg;--mt:0rem;
+    width:min(62vw,290px);
+    margin-top:calc(2.4rem + var(--mt));
+    padding:.55rem .55rem 1.9rem;
+    background:#ebe4d5;
+    color:#2a2620;
+    translate:calc(var(--k) * var(--spread)) 0;
+    rotate:var(--r);
+    box-shadow:
+      0 24px 50px rgba(0,0,0,.65),
+      0 0 70px rgba(var(--gold),.13);
+    transition:opacity 1.6s ease, rotate .6s ease, scale .6s ease;
+  }
+  .photo .pic{
+    position:relative;aspect-ratio:4/5;overflow:hidden;background:#1b1813;
+  }
+  .photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo figcaption{
+    position:absolute;left:0;right:0;bottom:.5rem;
+    text-align:center;font-style:italic;font-size:.95rem;
+    padding:0 .6rem;
+  }
+  .photo{position:relative}
+  /* penanda kalau file foto belum ada */
+  .photo.empty img{display:none}
+  .photo.empty .pic{
+    display:grid;place-items:center;
+    border:1px dashed #8a7f6a;
+    color:#8a7f6a;font-size:.95rem;
+  }
+  .photo.empty .pic::after{content:"foto/" attr(data-file)}
+  @media (hover:hover){
+    .photo:hover{rotate:0deg;scale:1.03;z-index:2}
+  }
+  @media (min-width:640px){
+    .scatter{--spread:68%}
+    .photo{width:300px}
+  }
+
+  /* ---------- Penutup ---------- */
+  .finale{
+    position:relative;
+    min-height:100svh;
+    display:grid;place-items:center;
+    padding:2rem 1.5rem 12vh;
+    text-align:center;
+  }
+  .finale::before{
+    content:"";position:absolute;left:50%;top:50%;
+    width:min(130vw,900px);aspect-ratio:1;
+    transform:translate(-50%,-56%);
+    background:radial-gradient(circle,
+      rgba(var(--gold),.20) 0,
+      rgba(var(--rose),.07) 38%,
+      transparent 68%);
+    pointer-events:none;
+  }
+  .finale h2{
+    position:relative;
+    font-weight:800;
+    font-size:clamp(2.6rem,11vw,5.6rem);
+    line-height:1.1;
+    letter-spacing:-.01em;
+    text-wrap:balance;
+    text-shadow:0 0 46px rgba(var(--gold),.4);
+    max-width:14em;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important}
+    .fade{opacity:1}
+  }
+</style>
+<noscript><style>.fade{opacity:1}</style></noscript>
+</head>
+<body>
+
+<div class="backdrop" aria-hidden="true">
+  <span class="orb a"></span>
+  <span class="orb b"></span>
+  <span class="orb c"></span>
+  <div id="stars"></div>
+</div>
+
+<main>
+
+  <!-- ===== PUISI ===== -->
+  <section class="poem">
+    <div class="moon" aria-hidden="true"></div>
+    <h1>Indah</h1>
+
+    <div class="stanza fade">
+      <p>Kalau sinar bulan terang, elok rupa dan warnanya, apakah itu indah?</p>
+      <p>Kalau riak gelombang laut menyapu hangatnya mentari sore, apakah itu indah?</p>
+      <p>Jika dalam sendiriku menjauh dari sibuknya dunia teringat dirimu, apakah itu indah?</p>
+    </div>
+
+    <div class="stanza fade">
+      <p>Kadangkala tidak semua yang indah merupakan hal yang langka dan sulit ditemui. Kadang juga ia dekat dan sulit dihindari.</p>
+      <p>Seperti mata bulat yang indah bagai bulan memandang hangat ke arah bayang tubuh.</p>
+      <p>Hati murni yang memeluk hangat diri yang marah, mendekap erat di saat-saat sukar.</p>
+      <p>Parasmu yang selalu hadir meraih di saat dunia meninggalkan diri dan enggan kembali.</p>
+    </div>
+
+    <div class="stanza fade">
+      <p>Coba katakan, apakah itu indah?</p>
+      <p>Ia dekat, sangat dekat, namun sulit disadari.</p>
+    </div>
+
+    <div class="stanza fade">
+      <p>Tapi ia petarung, mengalahkan badai demi terus berdiri menemani diri yang sulit.</p>
+      <p>Coba katakan, apakah itu indah?</p>
+    </div>
+
+    <div class="stanza fade">
+      <p>Dari banyaknya cobaan, ia memilih cobaan terberat. Membangun harapan, mengisi kekosongan di celah hati retak di diri yang karam.</p>
+      <p>Buka matamu! banyak intan yang lebih menawan bisa kau raih.</p>
+      <p>Tapi bukan itu tujuanmu. Hatimu lebih istimewa dari yang lain.</p>
+    </div>
+
+    <div class="stanza fade">
+      <p>Ia datang bukan sekadar hadir, ia menyambut dengan tangan hangat kepada diri yang lemah. Menguntai kisah baru dari kisah lama yang usang berdebu.</p>
+      <p>Ia tau, jika pada akhirnya dunia juga jarang memihaknya.</p>
+      <p>Tapi ia juga tau, bahwa dunia kejam itu bisa ada di dalam genggaman tangannya. Lalu ia berusaha.</p>
+    </div>
+
+    <div class="stanza fade">
+      <p>Merajut kenangan baru, menebar benih yang baru untuk masa depan yang ia dambakan.</p>
+      <p>Bersama diri yang baru mengarungi lautan buas yang belum ada kisahnya.</p>
+    </div>
+
+    <div class="stanza close fade">
+      <p>Sugeng ambal warsa, Sayang. Mugi Gusti Allah tansah paring berkah kesarasan, kebingahan, lan panjang yuswa.</p>
+    </div>
+  </section>
+
+  <!-- ===== FOTO ===== -->
+  <section class="scatter" id="scatter" aria-label="Foto-foto kita"></section>
+
+  <!-- ===== PENUTUP ===== -->
+  <section class="finale">
+    <h2 class="fade">Selamat ulang tahun sayang</h2>
+  </section>
+
+</main>
+
+<script>
+  /* ==========================================================
+     FOTO — ganti daftar ini dengan foto kalian.
+     1. Buat folder "foto" di sebelah file index.html ini.
+     2. Simpan foto di dalamnya (mis. foto/1.jpg, foto/2.jpg, ...).
+     3. Tambah / hapus baris sesuai jumlah foto.
+     "caption" boleh dikosongkan atau diisi tulisan pendek
+     (mis. "Bali, 2025").
+     ========================================================== */
+  const PHOTOS = [
+    { src: "foto/1.jpg", caption: "" },
+    { src: "foto/2.jpg", caption: "" },
+    { src: "foto/3.jpg", caption: "" },
+    { src: "foto/4.jpg", caption: "" },
+    { src: "foto/5.jpg", caption: "" },
+    { src: "foto/6.jpg", caption: "" },
+    { src: "foto/7.jpg", caption: "" },
+    { src: "foto/8.jpg", caption: "" }
+  ];
+
+  /* ---------- susun foto (miring & bergeser, tetap konsisten) ---------- */
+  const TILT   = [-5, 4, -3, 6, -6, 3, -4, 5];
+  const SHIFT  = [-.8, .7, -.5, .9, -.9, .4, -.6, .8];
+  const GAP    = [0, -1.2, .5, -1.6, 0, -1, .8, -1.4];
+  const scatter = document.getElementById('scatter');
+
+  PHOTOS.forEach((p, i) => {
+    const fig = document.createElement('figure');
+    fig.className = 'photo fade';
+    fig.style.setProperty('--r', TILT[i % TILT.length] + 'deg');
+    fig.style.setProperty('--k', SHIFT[i % SHIFT.length]);
+    fig.style.setProperty('--mt', (i === 0 ? 0 : GAP[i % GAP.length]) + 'rem');
+
+    const pic = document.createElement('div');
+    pic.className = 'pic';
+    pic.dataset.file = p.src.split('/').pop();
+
+    const img = new Image();
+    img.alt = p.caption || 'Foto kita berdua';
+    img.loading = 'lazy';
+    img.onerror = () => fig.classList.add('empty');
+    img.src = p.src;
+    pic.appendChild(img);
+    fig.appendChild(pic);
+
+    if (p.caption) {
+      const cap = document.createElement('figcaption');
+      cap.textContent = p.caption;
+      fig.appendChild(cap);
+    }
+    scatter.appendChild(fig);
+  });
+
+  /* ---------- bintang tipis di latar ---------- */
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 36; i++) {
+    const s = document.createElement('span');
+    const size = Math.random() < .8 ? 1 : 2;
+    s.className = 'star';
+    s.style.cssText =
+      `left:${Math.random()*100}%;top:${Math.random()*100}%;` +
+      `width:${size}px;height:${size}px;` +
+      `--d:${4 + Math.random()*6}s;--l:${-Math.random()*8}s`;
+    stars.appendChild(s);
+  }
+
+  /* ---------- muncul perlahan saat di-scroll ---------- */
+  const items = document.querySelectorAll('.fade');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: .18, rootMargin: '0px 0px -6% 0px' });
+    items.forEach(el => io.observe(el));
+  } else {
+    items.forEach(el => el.classList.add('in'));
+  }
+</script>
+</body>
+</html>
